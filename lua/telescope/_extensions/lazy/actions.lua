@@ -68,6 +68,41 @@ function M.open_in_terminal()
   window:open_terminal(selected_entry.path, builtin.resume)
 end
 
+function M.open_in_float()
+  local selected_entry = get_selected_entry()
+  if not selected_entry then
+    return
+  end
+
+  if selected_entry.readme then
+    vim.cmd.stopinsert()
+    local lines = vim.fn.readfile(selected_entry.readme)
+    local buf = vim.api.nvim_create_buf(false, true)
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+    local width = math.ceil(vim.o.columns * 0.7)
+    local height = math.ceil(vim.o.lines * 0.7)
+    local opts = {
+        relative = "editor",
+        width = width,
+        height = height,
+        col = math.ceil((vim.o.columns - width) / 2),
+        row = math.ceil((vim.o.lines - height) / 2),
+        style = "minimal",
+        border = "single",
+    }
+    vim.api.nvim_open_win(buf, true, opts)
+    vim.wo.conceallevel = 3
+
+    -- Buffer options
+    vim.api.nvim_set_option_value("filetype", "readup", { buf = buf })
+    vim.api.nvim_buf_set_name(buf, "readup")
+    vim.api.nvim_set_option_value("readonly", true, { buf = buf })
+    vim.api.nvim_set_option_value("bufhidden", "delete", { buf = buf })
+    vim.api.nvim_set_option_value("buftype", "nofile", { buf = buf })
+    vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
+  end
+end
+
 function M.open_in_browser()
   local open_cmd
   if vim.fn.executable("xdg-open") == 1 then
