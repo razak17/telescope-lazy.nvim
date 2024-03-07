@@ -4,10 +4,9 @@ local actions = require("telescope.actions")
 local actions_state = require("telescope.actions.state")
 local builtin = require("telescope.builtin")
 
-local telescope_lazy_config = require("telescope._extensions.lazy.config")
 local lazy_options = require("lazy.core.config").options
-
-local floating_window = require("telescope._extensions.lazy.floating_window")
+local telescope_lazy_config = require("telescope._extensions.lazy.config")
+local telescope_lazy_terminal = require("telescope._extensions.lazy.terminal")
 
 local function warn_no_selection_action()
   vim.notify(
@@ -31,6 +30,11 @@ local function attach_mappings(_, map)
   end)
   return true
 end
+
+local live_grep = (function()
+  local ok, egrepify = pcall(require, "telescope._extensions.egrepify")
+  return ok and egrepify.exports.egrepify or builtin.live_grep
+end)()
 
 function M.change_cwd_to_plugin()
   local selected_entry = get_selected_entry()
@@ -64,8 +68,8 @@ function M.open_in_terminal()
     return
   end
 
-  local window = floating_window.new()
-  window:open_terminal(selected_entry.path, builtin.resume)
+  local terminal = telescope_lazy_terminal.new()
+  terminal:open(selected_entry.path, builtin.resume)
 end
 
 function M.open_in_float()
@@ -147,7 +151,7 @@ function M.open_lazy_root_find_files()
 end
 
 function M.open_lazy_root_live_grep()
-  builtin.live_grep({
+  live_grep({
     prompt_title = "Grep files in lazy root",
     cwd = lazy_options.root,
     attach_mappings = attach_mappings,
@@ -173,7 +177,7 @@ function M.open_in_live_grep()
     return
   end
 
-  builtin.live_grep({
+  live_grep({
     prompt_title = string.format("Grep files (%s)", selected_entry.name),
     cwd = selected_entry.path,
     attach_mappings = attach_mappings,
