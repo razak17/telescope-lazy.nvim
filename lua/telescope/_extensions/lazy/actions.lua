@@ -36,7 +36,7 @@ local live_grep = (function()
   return ok and egrepify.exports.egrepify or builtin.live_grep
 end)()
 
-function M.change_cwd_to_plugin()
+function M.change_cwd_to_plugin(prompt_bufnr)
   local selected_entry = get_selected_entry()
   if not selected_entry then
     return
@@ -59,6 +59,10 @@ function M.change_cwd_to_plugin()
       vim.log.levels.ERROR,
       { title = telescope_lazy_config.extension_name }
     )
+  end
+
+  if telescope_lazy_config.opts.actions_opts.change_cwd_to_plugin.auto_close then
+    actions.close(prompt_bufnr)
   end
 end
 
@@ -107,7 +111,7 @@ function M.open_in_float()
   end
 end
 
-function M.open_in_browser()
+function M.open_in_browser(prompt_bufnr)
   local open_cmd
   if vim.fn.executable("xdg-open") == 1 then
     open_cmd = "xdg-open"
@@ -138,6 +142,10 @@ function M.open_in_browser()
         vim.log.levels.ERROR,
         { title = telescope_lazy_config.extension_name }
       )
+    end
+
+    if telescope_lazy_config.opts.actions_opts.open_in_browser.auto_close then
+      actions.close(prompt_bufnr)
     end
   end
 end
