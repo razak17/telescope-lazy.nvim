@@ -40,6 +40,8 @@ require("telescope").setup({
     ---@module "telescope._extensions.lazy"
     ---@type TelescopeLazy.Config
     lazy = {
+      -- What icon to show on the first column of the picker
+      icon = "",
       -- Optional theme (the extension doesn't set a default theme)
       theme = "ivy",
       -- The below configuration options are the defaults
@@ -64,6 +66,14 @@ require("telescope").setup({
           auto_close = false,
         },
       },
+      custom_actions = {
+        ["<C-p>"] = function(prompt_bufnr, selected_entry)
+          -- Do something with the selected_entry
+          dbg(selected_entry)
+          -- Optionally close the lazy picker
+          require("telescope.actions").close(prompt_bufnr)
+        end,
+      },
       terminal_opts = {
         relative = "editor",
         style = "minimal",
@@ -87,6 +97,8 @@ require("telescope").load_extension("lazy")
 ```lua
 ---@type TelescopeLazy.Config
 local defaults = {
+  -- What icon to show on the first column of the picker
+  icon = "",
   -- Whether or not to show the icon in the first column
   show_icon = true,
   -- Mappings for the actions
@@ -112,6 +124,8 @@ local defaults = {
       auto_close = false,
     },
   },
+  -- Custom actions to be added to the picker
+  custom_actions = {},
   -- Configuration that will be passed to the window that hosts the terminal
   -- For more configuration options check 'nvim_open_win()'
   terminal_opts = {
@@ -133,12 +147,15 @@ local defaults = {
 
 ```lua
 ---@class TelescopeLazy.Config
+---@field icon? string The icon to show on the first column of the picker.
 ---@field show_icon? boolean Whether or not to show the icon in the first column of the picker.
 ---@field mappings? TelescopeLazy.Mappings Mappings for the picker actions.
 ---@field actions_opts? TelescopeLazy.ActionsOpts Configuration options for the picker actions.
 ---@field terminal_opts? vim.api.keyset.win_config Configuration for the terminal window action.
+---@field custom_actions? table<string, TelescopeLazy.CustomAction> Custom actions to be added to the picker.
 ---@field theme? TelescopeLazy.Theme The Telescope theme to use for the picker.
 
+---@alias TelescopeLazy.CustomAction fun(prompt_bufnr: integer, selected_entry: TelescopeLazy.Plugin)
 ---@alias TelescopeLazy.Theme "dropdown" | "cursor" |"ivy"
 
 ---@class TelescopeLazy.Mappings
@@ -158,6 +175,15 @@ local defaults = {
 ---@class TelescopeLazy.ActionsOpts
 ---@field open_in_browser TelescopeLazy.ActionOpts
 ---@field change_cwd_to_plugin TelescopeLazy.ActionOpts
+
+---@class TelescopeLazy.Plugin
+---@field path string
+---@field name string
+---@field readme string|nil
+---@field url string
+---@field lazy boolean
+---@field dev boolean
+---@field icon string
 ```
 
 </details>
